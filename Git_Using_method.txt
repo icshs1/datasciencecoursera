@@ -1,0 +1,31 @@
+Creating a Local Copuy
+
+
+git init  : Initialize a local Git repostiroty in this directory
+
+git remote add origin https://github.com/icshs1/yyy.git
+
+
+Clone the
+git clone https://github.com/icshs1/xxx.git
+
+
+Adding 
+git add .   : adds all new files
+git add -u  : updates tracking for files that changed names or were deleted.
+git add -A  : does both of the previous
+
+
+committing
+
+git commit -m "message"
+
+pushing
+
+git push  : id and passwd
+
+branches 
+
+git checkout -b branchname :  you can create a branch with the command
+git branach : To see what branch you are on type:
+git checkout master : To switch back to the master branch type
