@@ -1,0 +1,21 @@
+git config --global http.proxy 168.219.61.252:8080
+git config --global https.proxy 168.219.61.252:8080
+
+
+http_proxy=http://168.219.61.252:8080
+https_proxy=http://168.219.61.252:8080
+
+
+------------------------------------
+git config --global http.sslVerify true
+  GIT_SSL_NO_VERIFY=true
+
+false로 세팅하니 된다.
+
+----------------------------------------
+libcurl.dll 에러 처리법
+
+
+Go to the folder where Git is installed (defalut: C:\Program Files\Git).
+Copy the file "libcurl.dll" in Git installation folder (C:\Program Files\Git\bin\libcurl.dll).
+Paste it in location where the git.exe exists (C:\Program Files\Git\libexec\git-core).
