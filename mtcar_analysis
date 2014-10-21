@@ -1,0 +1,136 @@
+* 필요 패키지 :`UsingR` 
+************************** 
+## 6. 데이터를 이용한 통계 분석 
+`````` 
+![mtcars](http://2.bp.blogspot.com/-38wWn7KD6v0/TgTJskG1ujI/AAAAAAAAC5g/0k33b0L5fL8/s1600/heatmap.png) 
+#### 6.1 데이터 탐색 
+```{r warning=FALSE, message=F} 
+library("UsingR") 
+# library("ggplot2") 
+mtcars 
+str(mtcars) 
+``` 
+ - `str()` 결과를 살펴보면 모두 "num"인 것을 확인 
+```{r} 
+mtcars$am <- as.factor(mtcars$am) 
+levels(mtcars$am) 
+levels(mtcars$am) <- c("Automatic", "Manual") 
+``` 
+ - 변속기는 자동, 수동의 factor 변수이기 때문에 factor 형식으로 변경 
+ - factor level을 "Automatic", "Manual"로 변경 
+
+> 연비에 대한 히스토그램 및 분포 확인 
+```{r} 
+par(mfrow = c(1, 2)) 
+# Histogram with Normal Curve 
+x <- mtcars$mpg 
+h<-hist(x, breaks=10, col="red", xlab="Miles Per Gallon", 
+ main="Histogram of Miles per Gallon") 
+xfit<-seq(min(x),max(x),length=40) 
+xfit 
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x)) 
+yfit 
+yfit <- yfit*diff(h$mids[1:2])*length(x) 
+yfit 
+lines(xfit, yfit, col="blue", lwd=2) 
+
+# Kernel Density Plot 
+d <- density(mtcars$mpg) 
+plot(d, xlab = "MPG", main ="Density Plot of MPG") 
+``` 
+ - 히스토그램의 x축은 연비, y축은 빈도 
+ - 파란선은 연비자료의 평균과 분산을 갖는 정규분포를 표현 
+ - Density plot은 연비의 분포를 표현 
+
+> 변속기 차이별 연비 확인 
+
+```{r} 
+boxplot(mpg~am, data = mtcars, 
+ col = c("dark grey", "light grey"), 
+ xlab = "Transmission", 
+ ylab = "Miles per Gallon", 
+ main = "MPG by Transmission Type") 
+``` 
+
+ - Box plot을 통해 outlier가 없는것을 확인 
+ - 자동변속기와 수동변속기의 연비 차이를 시각적으로 구분 
+ - 그림상으로는 수동변속기의 연비가 좋아보이지만 수치상으로 확인할 필요가 있음 
+
+#### 6.2 검정(Test) 
+> 변속기별 연비평균 비교 
+```{r} 
+aggregate(mpg~am, data = mtcars, mean) 
+``` 
+
+ - 수동변속기의 평균이 자동변속기보다 7.245(MPG) 높음 
+ - 이와 같이 평균의 차이가 있는지 t-test를 이용하여 검정할 필요가 있음 
+> t-Test 
+
+* t-검정은 등분산의 가정이 있을 때와 없을 때 2가지의 경우가 있는데 각각 나누어서 실행 
+* 단, 유의수준은 0.05로 하고, 정규성을 가정 
+
+$H_{0}: \mu_{Auto} = \mu_{Manual}$ $vs$ $H_{1}: \text{not} \; H_{0}$ 
+```{r} 
+autoData <- mtcars[mtcars$am == "Automatic",] 
+manualData <- mtcars[mtcars$am == "Manual",] 
+t.test(autoData$mpg, manualData$mpg, var.equal = TRUE) 
+t.test(autoData$mpg, manualData$mpg) 
+``` 
+ - 등분산 가정에서의 검정에서 나온 유의확률은 0.000285, 그렇지 않은 경우에서는 0.001374로서 모두 유의수준 0.05보다 작게 됨을 알 수 있음 
+ - 따라서 귀무가설은 기각되고 차량이 자동이냐 수동이냐에 따른 연비는 같다고 보기 힘듦 
+ - 즉, Reject $H_{0}$! 
+
+#### 6.3 단순선형 회귀분석 
+
+> Correlation Matrix 
+* 어떤 변수가 연비에 영향을 미치는지 Correlation matrix를 구해 확인 
+```{r} 
+data(mtcars) 
+cor(mtcars) 
+sort(cor(mtcars)[1,]) 
+``` 
+
+ - factor로 변경해준 `am`변수를 초기화 하기위해 데이터를 새로 불러들임 
+ - correlation matrix는 수치형 변수만 계산가능하기 때문 
+ - `mpg`에 대한 correlation 값을 보기 위해 `sort()`와 변수선택을 실행 
+ - `am`을 비롯한 `wt`, `cyl`, `disp`, `hp` 변수가 `mpg`와 상관관계가 높은 것으로 나타남 
+ - 여기서 `cyl`과 `disp`변수의 상관관계가 굉장히 높은 것으로 나타난것을 확인 
+ - collinearity(공선성)을 고려하여 두 변수는 제거 
+ - 또한 `wt`와 `hp`는 높을수록 연비가 하락할것이라는 상식적인 배경을 바탕으로 분석 실시 
+
+> 단순선형회귀 실시 
+
+```{r} 
+fit <- lm(mpg~am, data=mtcars) 
+summary(fit) 
+``` 
+ - 위의 검정에서 차이를 보았기 때문에 이 모형( `mpg ~ am` )에서 정보를 더이상 얻긴 어려움 
+ - 다만 회귀계수가 모두 유의함 
+ - 따라서 자동변속기 차량은 평균적으로 17.147MPG의 연비를 가지고 있고 수동변속기 차량은 7.245MPG만큼의 연비효율이 있음 
+ - 또한 이 모형은 R-squared 값에 의해 35.98%정도 설명력을 가지고 있다고 할 수 있음 
+
+#### 6.4 다중회귀분석 
+
+> 종속변수를 연비, 독립변수를 무게, 마력, 변속기종류 3개로 두고 다중회귀분석을 실시 
+
+```{r} 
+bestfit <- lm(mpg~am + wt + hp, data = mtcars) 
+summary(bestfit) 
+``` 
+
+ - `am`을 제외한 나머지 변수는 모두 유의하다는 것을 확인 
+ - R-squared 값이 0.8399로 모형이 83.99%의 설명력을 가지고 있다고 할 수 있음 
+
+> 모델비교(ANOVA) 
+```{r} 
+anova(fit, bestfit) 
+``` 
+ - 단순선형회귀식인 `fit`과 다중회귀식인 `bestfit`이 차이가 있는지 ANOVA를 통해 비교 
+ - p-value가 **3.745e-09**로 `bestfit`모형이 유의함을 확인 
+> 잔차분석 
+```{r} 
+par(mfrow = c(2,2)) 
+plot(bestfit) 
+``` 
+ - 결과를 통해 정규성 및 등분산성 확인 
+- "Chrysler Imperial", "Toyota Corolla", "Fiat 128"은 이상점으로 필요시 데이터 정제
