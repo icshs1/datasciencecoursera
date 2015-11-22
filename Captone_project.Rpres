@@ -1,0 +1,54 @@
+Prediction Star Review From Its Text Using Sentiment Analysis
+========================================================
+author: Hyunsik Shim
+date: 22, Nov. 2015
+
+Introduction
+========================================================
+
+From the Yelp Dataset, I find some interesting questions with applying a variety of tools of data science: 
+
+ - Q1: Whether the actual user reviews and the star grading in review data have a correlation? 
+   In other words, stars (in review data) is reflecting the real opinions of users?
+ - Q2: Based on analysis of Q1, if we can find reviews which are different from stars, 
+       Can we use those for finding effective methods to extract useful information? 
+      
+The answers to these questions may be of interest to business owners who want to identify their business strengths and weaknesses based on customer reviews. 
+
+Methods and Data
+========================================================
+
+The code for useful functions is listed in Appendix B. For Sentimental Analysis, I used two methods.
+
+- Using the R package sentiment by Timothy Jurka
+- Following Breen's Approach 
+
+Using above functions, I extracted emotion, polarity and opinion scores of reviews.
+
+Results 
+========================================================
+
+- Decision tree using `rpart` function to build a model that predicts review stars based on 
+emotion, polarity and opinion_score colums from sentiment analysis.
+- Using the above model, the accuracy is `31.1%`. 
+
+***
+
+- I found reviews which polarity are different stars and also extract
+user list who the number of diffrent reviews are over than 10.
+- The number of user list are `435` and the ratio is `r 435/49975*100`%.
+- I could improve the accuracy of new model as to `56.3%`.
+
+Discussion 
+========================================================
+
+I can interpret two opinions from the results of my analysis.
+
+- If we find users who have different opinions while they give high or low star,
+we can get more reliable evaluation about business like resturants, hotel and so on.
+From my analysis, I could got more accurate prediction model when those had been ruled out of the
+training data. 
+
+- If sentiment analysis algorithm is not good to extract exact opinion from review,
+we colud not obtain reliable prediction model because training data don't have enough information
+to represent real opinion of users.
